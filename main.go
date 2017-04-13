@@ -5,10 +5,24 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"strings"
 	"time"
 )
+
+//获取程序运行路径和所在路径(最后带/)
+func getCurrentDirectory() (string, string) {
+	dir, _ := filepath.Abs(filepath.Dir(os.Args[0]))
+	file, _ := exec.LookPath(os.Args[0])
+	path, _ := filepath.Abs(file)
+	path = strings.Replace(path, "\\", "/", -1)
+	splitstring := strings.Split(path, "/")
+	size := len(splitstring)
+	splitstring = strings.Split(path, splitstring[size-1])
+	rst := splitstring[0]
+	return strings.Replace(dir, "\\", "/", -1), rst
+}
 
 //删除[]string切片中的值
 func remove(slice []string, elems string) []string {
@@ -55,7 +69,7 @@ func getDirList(path string) []string {
 }
 
 //表层遍历dirname目录文件（夹），不是递归遍历，并且去掉指定文件（夹）名
-func walkDir(dirname string) []string {
+func walkDir(dirname string, noViewFilename string) []string {
 	var filenames []string
 	//遍历dir目录下的所有文件（注意不是递归遍历，这里只是一次遍历）
 	//并且生成的文件名排除.sync和generateHTML.exe和index.html
@@ -67,7 +81,7 @@ func walkDir(dirname string) []string {
 		filenames = append(filenames, file.Name())
 	}
 	// 读取noView.txt每一行，如果文件名在noView中就从filenames中删除这个元素
-	if err := ReadPerLine("noView.txt", func(line string) {
+	if err := ReadPerLine(noViewFilename, func(line string) {
 		if line != "" {
 			filenames = remove(filenames, line)
 		}
@@ -109,11 +123,12 @@ func saveFile(filename string, content *string) error {
 
 func main() {
 	start := time.Now().Nanosecond()
-	for _, dirname := range getDirList(".") {
+	currentDir, placeDir := getCurrentDirectory()
+	for _, dirname := range getDirList(currentDir) {
 		var liText string
-		filenames := walkDir(dirname)
+		filenames := walkDir(dirname, placeDir+"noView.txt")
 
-		templateHTML, err := ioutil.ReadFile("Template.html")
+		templateHTML, err := ioutil.ReadFile(placeDir + "Template.html")
 		if err != nil {
 			fmt.Println("open Template.html Error,Please check if the Template.html exists")
 			os.Exit(1)
@@ -124,7 +139,7 @@ func main() {
 			liText += "			<li><a href=\"./" + name + "\" target=\"_Blank\">" + name + "</a></li>\n"
 		}
 		AllHTML := strings.Replace(string(templateHTML), "{{content_li}}", liText, -1)
-		configHTMLMap, err := getTemplateConfig("config.config")
+		configHTMLMap, err := getTemplateConfig(placeDir + "config.config")
 		if err != nil {
 			fmt.Printf("Config ReadLine Error %v\n", err)
 		}
