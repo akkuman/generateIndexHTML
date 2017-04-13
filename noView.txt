@@ -1,0 +1,6 @@
+noView.txt
+.sync
+generateHTML.exe
+index.html
+Template.html
+config.config
