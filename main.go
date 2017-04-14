@@ -136,7 +136,7 @@ func main() {
 
 		//文件名信息拼接成li列表,然后将解析好的内容放入AllHTML
 		for _, name := range filenames {
-			liText += fmt.Sprintf("\t\t\t<li %s><a href=\"./%s\" target=\"_Blank\">%s</a></li>\n", getFileClass(name), name, name)
+			liText += fmt.Sprintf("\t\t\t<li %s><a href=\"./%s\" target=\"_Blank\">%s</a></li>\n", getFileClass(dirname, name), name, name)
 		}
 		AllHTML := strings.Replace(string(templateHTML), "{{content_li}}", liText, -1)
 		configHTMLMap, err := getTemplateConfig(placeDir + "config.config")

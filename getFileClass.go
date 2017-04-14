@@ -2,7 +2,9 @@ package main
 
 import (
 	"fmt"
+	"os"
 	"path"
+	"strings"
 )
 
 var SuffixToClass map[string]string = map[string]string{
@@ -17,17 +19,21 @@ var SuffixToClass map[string]string = map[string]string{
 }
 
 //取文件后缀名并返回类似与class="video_icon mp4"的字符串
-func getFileClass(filename string) string {
+func getFileClass(dirname string, filename string) string {
 	if filename == "" {
 		return ""
 	}
 	suffixName := path.Ext(filename)
 	if suffixName == "" {
-		return ""
+		f, _ := os.Stat(fmt.Sprintf("%s/%s", dirname, filename))
+		if f.IsDir() {
+			return "class=\"li-style folder_icon\""
+		}
+		return "class=\"li-style unknown_type\""
 	}
-	suffixNameWithoutDot := suffixName[1:]
+	suffixNameWithoutDot := strings.ToLower(suffixName[1:])
 	if className, ok := SuffixToClass[suffixNameWithoutDot]; ok {
-		return fmt.Sprintf("class=li-style %s %s", className, suffixNameWithoutDot)
+		return fmt.Sprintf("class=\"li-style %s %s\"", className, suffixNameWithoutDot)
 	}
 	return ""
 }

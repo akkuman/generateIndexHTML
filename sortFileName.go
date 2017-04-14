@@ -15,7 +15,7 @@ func (filenames MyFileNameList) Swap(i, j int) {
 func (filenames MyFileNameList) Less(i, j int) bool {
 	iSuffixName := path.Ext(filenames[i]) + filenames[i]
 	jSuffixName := path.Ext(filenames[j]) + filenames[j]
-	return iSuffixName < jSuffixName
+	return iSuffixName > jSuffixName
 }
 
 func sortFileName(filenameList []string) {
