@@ -127,7 +127,7 @@ func main() {
 	for _, dirname := range getDirList(currentDir) {
 		var liText string
 		filenames := walkDir(dirname, placeDir+"noView.txt")
-
+		sortFileName(filenames)
 		templateHTML, err := ioutil.ReadFile(placeDir + "Template.html")
 		if err != nil {
 			fmt.Println("open Template.html Error,Please check if the Template.html exists")
@@ -136,7 +136,7 @@ func main() {
 
 		//文件名信息拼接成li列表,然后将解析好的内容放入AllHTML
 		for _, name := range filenames {
-			liText += "			<li><a href=\"./" + name + "\" target=\"_Blank\">" + name + "</a></li>\n"
+			liText += fmt.Sprintf("\t\t\t<li %s><a href=\"./%s\" target=\"_Blank\">%s</a></li>\n", getFileClass(name), name, name)
 		}
 		AllHTML := strings.Replace(string(templateHTML), "{{content_li}}", liText, -1)
 		configHTMLMap, err := getTemplateConfig(placeDir + "config.config")
